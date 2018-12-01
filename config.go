@@ -59,7 +59,7 @@ func NewClient(ctx context.Context, config *Config, token *Token) *http.Client {
 // (temporary credentials).
 // See RFC 5849 2.1 Temporary Credentials.
 func (c *Config) RequestToken() (requestToken, requestSecret string, err error) {
-	req, err := http.NewRequest("POST", c.Endpoint.RequestTokenURL, nil)
+	req, err := http.NewRequest("GET", c.Endpoint.RequestTokenURL, nil)
 	if err != nil {
 		return "", "", err
 	}
