@@ -7,6 +7,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha1"
 	"encoding/base64"
+	"net/url"
 	"strings"
 )
 
@@ -32,7 +33,7 @@ func (s *HMACSigner) Name() string {
 // Sign creates a concatenated consumer and token secret key and calculates
 // the HMAC digest of the message. Returns the base64 encoded digest bytes.
 func (s *HMACSigner) Sign(tokenSecret, message string) (string, error) {
-	signingKey := strings.Join([]string{s.ConsumerSecret, tokenSecret}, "&")
+	signingKey := strings.Join([]string{s.ConsumerSecret, url.QueryEscape(tokenSecret)}, "&")
 	mac := hmac.New(sha1.New, []byte(signingKey))
 	mac.Write([]byte(message))
 	signatureBytes := mac.Sum(nil)

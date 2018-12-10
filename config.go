@@ -106,7 +106,8 @@ func (c *Config) AuthorizationURL(requestToken string) (*url.URL, error) {
 		return nil, err
 	}
 	values := authorizationURL.Query()
-	values.Add(oauthTokenParam, requestToken)
+	values.Add("key", c.ConsumerKey)
+	values.Add("token", requestToken)
 	authorizationURL.RawQuery = values.Encode()
 	return authorizationURL, nil
 }
@@ -136,7 +137,7 @@ func ParseAuthorizationCallback(req *http.Request) (requestToken, verifier strin
 // credentials).
 // See RFC 5849 2.3 Token Credentials.
 func (c *Config) AccessToken(requestToken, requestSecret, verifier string) (accessToken, accessSecret string, err error) {
-	req, err := http.NewRequest("POST", c.Endpoint.AccessTokenURL, nil)
+	req, err := http.NewRequest("GET", c.Endpoint.AccessTokenURL, nil)
 	if err != nil {
 		return "", "", err
 	}
@@ -168,4 +169,31 @@ func (c *Config) AccessToken(requestToken, requestSecret, verifier string) (acce
 		return "", "", errors.New("oauth1: Response missing oauth_token or oauth_token_secret")
 	}
 	return accessToken, accessSecret, nil
+}
+
+// formatRequest generates ascii representation of a request
+func formatRequest(r *http.Request) string {
+	// Create return string
+	var request []string
+	// Add the request string
+	url := fmt.Sprintf("%v %v %v", r.Method, r.URL, r.Proto)
+	request = append(request, url)
+	// Add the host
+	request = append(request, fmt.Sprintf("Host: %v", r.Host))
+	// Loop through headers
+	for name, headers := range r.Header {
+		name = strings.ToLower(name)
+		for _, h := range headers {
+			request = append(request, fmt.Sprintf("%v: %v", name, h))
+		}
+	}
+
+	// If this is a POST, add post data
+	if r.Method == "POST" {
+		r.ParseForm()
+		request = append(request, "\n")
+		request = append(request, r.Form.Encode())
+	}
+	// Return the request as a string
+	return strings.Join(request, "\n")
 }

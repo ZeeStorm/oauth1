@@ -158,7 +158,7 @@ func (a *auther) signer() Signer {
 // The given OAuth params should include the "oauth_signature" key.
 func authHeaderValue(oauthParams map[string]string) string {
 	pairs := sortParameters(encodeParameters(oauthParams), `%s="%s"`)
-	return authorizationPrefix + strings.Join(pairs, ", ")
+	return authorizationPrefix + strings.Join(pairs, ",")
 }
 
 // encodeParameters percent encodes parameter keys and values according to
